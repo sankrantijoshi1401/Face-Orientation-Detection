@@ -43,6 +43,7 @@ class OrientationClassifier(object):
 		Construct for detection of facial landmark and thus identifying if the imaghe is in correct orientation not
 		"""
 		try:
+			# using the dlib detector. This is a general detector used for detection of regid objects.
 			rects = self.detector(self.image, 1)
 
 			for (i, rect) in enumerate(rects):
@@ -74,7 +75,7 @@ class OrientationClassifier(object):
 			else:
 	 			return 0
 	 	except:
-	 		# This is becoause even a non image file can be read, however, it would raise an error when applying a detector
+	 		# This is because even a non image file can be read, however, it would raise an error when applying a detector
 	 		print('Please check the image entered and provide a valid image')
 	 		return -1
 
@@ -85,8 +86,11 @@ class OrientationClassifier(object):
 		"""
 		count = 1
 		classV = 0
+		# we loop through 0 to  360 until the facial landmarks are detecting in the image
 		for angle in np.arange(0, 360, 90):
 			count += 1
+			# rotating both images because we want to have both images similar and the only difference to be the presence
+			# or absense of facial landmarks
 			self.image = imutils.rotate_bound(self.image, angle)
 			self.image2 = imutils.rotate_bound(self.image2, angle)
 			self.imageResize()
@@ -109,19 +113,23 @@ if __name__ == "__main__":
 	ap.add_argument("-i", "--image", required=True,
 		help="images/F1.jpg")
 	try:
+		#extracting the arguments
 		args = vars(ap.parse_args())
 		name = str(args["image"])
 	except :
-		print('File not found. Stopping now') 
+		print('Please checked the provided arguments') 
 		exit()
 	try:
+		# Calling the class
 		cv = OrientationClassifier(args)
 	except:
 		print('Please pass the correct file')
 		exit()
 	classV = 1
+	# Getting the difference in the loaded images
 	value = cv.getDifference()
 	if value == 1:
+		# Fixing the orientation and saving edited file
 		newName = name.split('/')
 		name = newName[0]+'/'+'Fixed'+newName[1]
 		image, classV = cv.fixOrientation()
